@@ -7,13 +7,13 @@ class Order
 		@basket = []
 		@total_amount = 0
 		file = File.read('../hipstercoffee.json')
-		@data_hash = JSON.parse(file.downcase)
+		@data_hash = JSON.parse(file)
 		@prices = @data_hash[0]["prices"][0]
-		#p @data_hash
+		@tax = 8.64
 	end
 
 	def add(item, quantity = 1)
-		@item = item.downcase
+		@item = item.split.map(&:capitalize).join(' ')
   	@quantity = quantity
   	available ? update_basket : not_update_basket
 	end
@@ -35,6 +35,20 @@ class Order
 
 	def accumulated_prize
   	@prices[@item] * @quantity
+  end
+
+  def total_without_tax
+  	helper_var = 0
+  	@total_amount = @basket.map { |i| helper_var += i[:accumulated_prize] }.pop
+  	@total_amount
+  end
+
+  def tax
+  	((total_without_tax * @tax ) / 100).round(2)
+  end
+
+  def total_with_tax
+  	total_without_tax + tax
   end
 
 end
