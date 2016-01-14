@@ -2,14 +2,16 @@ require "json"
 
 class Order
 
-	def initialize(name)
+	attr_reader :basket
+
+	def initialize(name, tax = 8.64)
 		@name = name
 		@basket = []
 		@total_amount = 0
-		file = File.read('../hipstercoffee.json')
+		file = File.read('./hipstercoffee.json')
 		@data_hash = JSON.parse(file)
 		@prices = @data_hash[0]["prices"][0]
-		@tax = 8.64
+		@tax = tax
 	end
 
 	def add(item, quantity = 1)
@@ -17,6 +19,33 @@ class Order
   	@quantity = quantity
   	available ? update_basket : not_update_basket
 	end
+
+	def checkout
+		receipt
+		return "Thank you! :)"
+  end
+
+  private
+
+  def receipt
+  	puts "#########################"
+  	puts Time.now
+  	puts @data_hash[0]["shopName"]
+  	puts @data_hash[0]["address"]
+  	puts "Phone: " + @data_hash[0]["phone"]
+  	puts "Customer name: " + @name
+  	puts ""
+  	for i in 0...@basket.length	
+  		name = @basket[i][:name]
+  	  quant = @basket[i][:quantity]
+  	  price = @basket[i][:price]
+  	  puts "#{name}...x#{quant}...#{price}€" 
+  	end
+  	puts "Tax...#{tax}€"
+  	puts "Total...#{total_with_tax}€"
+  	puts ""
+  	puts "#########################"
+  end
 
 	def available
 		@prices.include?(@item)
